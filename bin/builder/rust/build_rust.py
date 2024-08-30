@@ -60,6 +60,10 @@ class RustBuilder(BuildProcess):
         self.code_model = cmodel
         return self
 
+    def set_config(self, config: str) -> Self:
+        self.custom_config = config
+        return self
+
     def setup(self, args: Any) -> Self:
         self.args = BuildArgs(args)
         return self
