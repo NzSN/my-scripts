@@ -8,6 +8,7 @@ from collections import namedtuple
 
 from base.utility import findClang, uncompress
 from base.toolchains import GetToolchain
+from base.resources import Resource
 
 
 rust_build_config_default = \
@@ -45,8 +46,6 @@ class RustBuilder(BuildProcess):
     build_path: Optional[Path] = None
     custom_config: Optional[str] = None
     code_model: Optional[str] = None
-
-    Resource = namedtuple('Resource', ['arch', 'os', 'version', 'repo', 'strip'])
 
     rust_resources = [
         Resource('loong64', 'linux', '1.80.0',
