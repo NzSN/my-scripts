@@ -1,11 +1,16 @@
 import subprocess
 import pathlib
-from typing import Any
+from typing import Any, Optional
 from typing_extensions import Self
 from build_process import BuildArgs, BuildProcess
 from collections import namedtuple
 
+from base.utility import findClang
+from base.toolchains import GetToolchain
+
 class RustBuilder(BuildProcess):
+
+    compiler: Optional[str] = ""
 
     Resource = namedtuple('Resource', ['arch', 'os', 'version', 'repo'])
 
@@ -31,20 +36,30 @@ class RustBuilder(BuildProcess):
 
         selected = selecteds[0]
 
-        buildPath = pathlib.Path(self.args.builddir)
-        buildPath.mkdir(mode=755, exist_ok=True);
+        build_path = pathlib.Path(self.args.builddir)
+        build_path.mkdir(mode=755, exist_ok=True);
 
         # Prepare toolchain to compile rust
         if self.args.target_arch != self.args.host_arch:
             # Cross compile is required. Need to find out an llvm
             # with target that match self.args.target_arch
+            if self.args.target_arch == "loong64":
+                # Community does not support abi-1.0 of loongarch64
+                # have to use toolchain provided from LoongArch.
+                toolchain_root = GetToolchain(
+                    self.args.target_arch, self.args.target_os, str(build_path))
+                assert(not (toolchain_root is None))
 
-
+        # Get Rust source
         subprocess.run("wget " + selected.repo + " -O rust_src",
-                       shell=True, check=True, cwd=str(buildPath))
+                       shell=True, check=True, cwd=str(build_path))
 
         return self
 
     def build(self) -> Self:
 
         return self
+
+
+    def finish(self) -> str:
+        ...

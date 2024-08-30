@@ -5,13 +5,13 @@ from typing_extensions import Self
 
 class BuildArgs:
     def __init__(self, args: Any) -> None:
-        self.host_os = platform.system \
+        self.host_os = platform.system() \
             if args.host_os == None else args.host_os
-        self.target_os = platform.system \
+        self.target_os = platform.system() \
             if args.target_os == None else args.target_os
-        self.host_arch = platform.architecture \
+        self.host_arch = platform.machine() \
             if args.host_arch == None else args.host_arch
-        self.target_arch = platform.architecture \
+        self.target_arch = platform.machine() \
             if args.target_arch == None else args.host_arch
         self.sysroot = args.sysroot
         self.builddir = "./build" if args.builddir == None else args.builddir
@@ -23,4 +23,6 @@ class BuildProcess(Protocol):
     def setup(self, args: BuildArgs) -> Self:
         ...
     def build(self) -> Self:
+        ...
+    def finish(self) -> Any:
         ...
