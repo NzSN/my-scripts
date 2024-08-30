@@ -22,4 +22,5 @@ if args.project == 'rust':
     from rust.build_rust import RustBuilder
     RustBuilder()    \
         .setup(args) \
+        .prepare()   \
         .build()
