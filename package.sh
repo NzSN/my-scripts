@@ -8,14 +8,15 @@ BUILDERS=(
   "rust"
 )
 
-BUILDERS=""
+BUILDER_SCRIPTS=""
 for builder in "${BUILDERS[@]}"; do
-  if [ "$BUILDERS" == "" ]; then
-    BUILDERS="$BUILDER_PATH/$builder/build_${builder}"
+  if [ "$BUILDER_SCRIPTS" == "" ]; then
+    BUILDER_SCRIPTS="$BUILDER_PATH/$builder/build_${builder}.py"
   else
-    BUILDERS="$BUILDERS:$BUILDER_PATH/$builder/build_${builder}"
+    BUILDER_SCRIPTS="$BUILDER_SCRIPTS:$BUILDER_PATH/$builder/build_${builder}.py"
   fi
 done
-echo $BUILDERS
 
- BINS=bin/builder
+echo $BUILDER_SCRIPTS
+
+BINS=bin/builder
