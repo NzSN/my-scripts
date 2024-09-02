@@ -20,6 +20,7 @@ class LLVMBuilder(BuildProcess):
     return self
 
   def build(self) -> Self:
+    return self
 
 
   def finish(self) -> str:

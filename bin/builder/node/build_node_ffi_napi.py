@@ -28,6 +28,14 @@ class NodeFFINapiBuilder(BuildProcess):
                            shell=True,
                            check=True,
                            cwd=build_path.absolute())
+        if self.args.target_arch == "loongarch64":
+            subprocess.run(
+                """
+                git remote add loongarch https://github.com/NzSN/node-ffi-napi.git;
+                git fetch loongarch;
+                git checkout loongarch64;
+                """,
+                shell=True, check=True, cwd=node_ffi_napi_path.absolute())
 
         subprocess.run("npm install node-addon-api",
                        shell=True, check=True, cwd=node_ffi_napi_path.absolute())
@@ -38,9 +46,17 @@ class NodeFFINapiBuilder(BuildProcess):
 
         # Setup cross toolchain
         env = os.environ.copy()
-
         # Build
-        subprocess.run("node-gyp configure; node-gyp build",
+        if self.args.target_arch == "loongarch64":
+            subprocess.run("node-gyp --arch loongarch64 configure",
+                           shell=True, check=True, env=env,
+                           cwd=node_ffi_napi_path.absolute())
+        else:
+            subprocess.run("node-gyp configure",
+                           shell=True, check=True, env=env,
+                           cwd=node_ffi_napi_path.absolute())
+
+        subprocess.run("node-gyp build",
                        shell=True, check=True, env=env,
                        cwd=node_ffi_napi_path.absolute())
         self.module_path = Path(str(node_ffi_napi_path.absolute()) + "/build/Release/ffi_bindings.node")
