@@ -17,6 +17,4 @@ for builder in "${BUILDERS[@]}"; do
   fi
 done
 
-echo $BUILDER_SCRIPTS
-
-BINS=bin/builder
+BINS=$BUILDER_SCRIPTS:bin/builder/node/build_node_ffi_napi.py:bin/builder/builder.py

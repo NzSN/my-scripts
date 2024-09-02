@@ -24,3 +24,9 @@ if args.project == 'rust':
         .setup(args) \
         .prepare()   \
         .build()
+elif args.project == 'node-ffi-napi':
+    from node.build_node_ffi_napi import NodeFFINapiBuilder
+    NodeFFINapiBuilder() \
+        .setup(args)     \
+        .build()         \
+        .finish()
