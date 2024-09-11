@@ -30,3 +30,6 @@ elif args.project == 'node-ffi-napi':
         .setup(args)     \
         .build()         \
         .finish()
+elif args.project == 'llvm':
+    from llvm.build_llvm import LLVMBuilder
+    LLVMBuilder().setup(args).prepare().build()
