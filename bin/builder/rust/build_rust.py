@@ -40,13 +40,46 @@ prefix = '{dest}'
 sysconfdir = '{dest}'
 """
 
+rust_build_config_loong64 = \
+"""
+# Use different pre-set defaults than the global defaults.
+#
+# See `src/bootstrap/defaults` for more information.
+# Note that this has no default value (x.py uses the defaults in `config.example.toml`).
+
+profile = 'dist'
+
+[llvm]
+
+[build]
+target = [{target}]
+profiler = true
+
+# Arguments passed to the `./configure` script, used during distcheck. You
+# probably won't fill this in but rather it's filled in by the `./configure`
+# script. Useful for debugging.
+configure-args = ['--set', '{dest}']
+
+[install]
+
+# Where to install the generated toolchain. Must be an absolute path.
+prefix = '{dest}'
+sysconfdir = '{dest}'
+
+[target.loongarch64-unknown-linux-gnu]
+cc = '{cc}'
+cxx = '{cxx}'
+ar = '{ar}'
+ranlib = '{ranlib}'
+linker = '{linker}'
+"""
+
 class RustBuilder(BuildProcess):
 
     compiler: Optional[str] = None
     toolchain: Optional[str] = None
     rust_src: Optional[str] = None
     build_path: Optional[Path] = None
-    custom_config: Optional[str] = None
     code_model: Optional[str] = None
 
     rust_resources = [
@@ -59,10 +92,6 @@ class RustBuilder(BuildProcess):
 
     def set_codemodel(self, cmodel: str) -> Self:
         self.code_model = cmodel
-        return self
-
-    def set_config(self, config: str) -> Self:
-        self.custom_config = config
         return self
 
     def setup(self, args: Any) -> Self:
@@ -111,11 +140,25 @@ class RustBuilder(BuildProcess):
             raise Exception("Need to prepare env to build rust")
 
         # Setup config.toml for rust building
-        config = rust_build_config_default.format_map({
-            'target': '"' + self.args.target_arch + "-unknown-" + self.args.target_os + "-gnu" + '"' + \
-                      ',' + '"' + self.args.host_arch + "-unknown-" + self.args.host_os + "-gnu" + '"',
-            'dest'  : self.args.dest
-        })
+        config = ''
+        if self.args.target_arch == "loong64":
+            assert(self.toolchain is not None)
+            config = rust_build_config_loong64.format_map({
+                'target' : '"' + self.args.target_arch + "-unknown-" + self.args.target_os + "-gnu" + '"' + \
+                        ',' + '"' + self.args.host_arch + "-unknown-" + self.args.host_os + "-gnu" + '"',
+                'dest'   : self.args.dest,
+                'cc'     : self.toolchain + "/bin/loongarch64-linux-gnu-gcc",
+                'cxx'    : self.toolchain + "/bin/loongarch64-linux-gnu-g++",
+                'arr'    : self.toolchain + "/bin/loongarch64-linux-gnu-ar",
+                'ranlib' : self.toolchain + "/bin/loongarch64-linux-gnu-ranlib",
+                'linker' : self.toolchain + "/bin/loongarch64-linux-gnu-linker"
+            })
+        else:
+            config = rust_build_config_default.format_map({
+                'target': '"' + self.args.target_arch + "-unknown-" + self.args.target_os + "-gnu" + '"' + \
+                        ',' + '"' + self.args.host_arch + "-unknown-" + self.args.host_os + "-gnu" + '"',
+                'dest'  : self.args.dest
+            })
 
         with open(self.rust_src + "/config.toml", "w") as file:
             file.write(config)
